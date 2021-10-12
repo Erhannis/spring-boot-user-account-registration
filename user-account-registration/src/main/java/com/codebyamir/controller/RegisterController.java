@@ -143,5 +143,9 @@ public class RegisterController {
 		modelAndView.addObject("successMessage", "Your password has been set!");
 		return modelAndView;		
 	}
-	
+    
+    @RequestMapping("/login")
+    public String login() {
+        return "login";
+    }
 }
