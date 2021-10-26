@@ -15,6 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 @Configuration
 @EnableWebSecurity
@@ -42,6 +43,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.permitAll()
 				.and()
 			.logout()
+                .logoutUrl("/logout")
 				.permitAll();
 		 
 	}
@@ -51,18 +53,21 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         builder.authenticationProvider(new AuthenticationProvider() {
             @Override
             public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+                Authentication result = null;
                 String principal = (String)authentication.getPrincipal();
                 String credentials = (String)authentication.getCredentials();
+                ((WebAuthenticationDetails)authentication.getDetails()).getSessionId();
         		User userExists = userService.findByEmail(principal);
                 if (userExists == null) {
                     throw new BadCredentialsException("Invalid credentials");
                 }
                 if (bCryptPasswordEncoder.matches(credentials, userExists.getPassword())) {
-                    authentication.setAuthenticated(true);
+                    //authentication.setAuthenticated(true);
+                    result = authentication;
                 } else {
                     throw new BadCredentialsException("Invalid credentials");
                 }
-                return authentication;
+                return result;
             }
 
             @Override
